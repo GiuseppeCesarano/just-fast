@@ -12,5 +12,8 @@ endif(NOT EXISTS ${CPM_DOWNLOAD_LOCATION})
 include(${CPM_DOWNLOAD_LOCATION})
 
 # Start project config
+SET (PROJECT_NAME "Just Fast")
+SET (PROJECT_DESCRIPTION "Just Fast is a modal file manager, to execute any action you need to select each file and enter a mode (copy, move, delete) once you selected every file and a mode, you can confirm the operation with the confirm key.")
+
 project(JustFast)
 add_subdirectory(src)
