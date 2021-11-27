@@ -19,8 +19,17 @@ Supported OS:
 
 ## Try Just Fast
 
-If you have **git** and **cmake** installed you can use the following one line command to download and compile _Just Fast_.  
-`git clone https://github.com/GiuseppeCesarano/just-fast.git && cd just-fast && cmake . -B build -DCMAKE_BUILD_TYPE=Release && cd build && cmake --build .`
+If you have **git**, **cmake** and **curl** or **wget** installed you can use the following one line command to download and compile _Just Fast_.  
+
+```sh
+curl -o- https://raw.githubusercontent.com/GiuseppeCesarano/just-fast/master/just-fast.sh | bash
+```
+
+or 
+
+```sh
+wget -qO- https://raw.githubusercontent.com/GiuseppeCesarano/just-fast/master/just-fast.sh | bash
+```
 
 ## ⌨️ Keybindings
 
