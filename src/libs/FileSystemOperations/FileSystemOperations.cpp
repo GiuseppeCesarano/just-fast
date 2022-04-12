@@ -6,14 +6,14 @@ void FileSystemOperations::setSelectedFiles(const std::vector<std::filesystem::p
     selectedFiles = sFiles;
 }
 
-void FileSystemOperations::appendSelectedFiles(const std::filesystem::path& fileToAppand)
+void FileSystemOperations::appendSelectedFiles(const std::filesystem::path& fileToAppend)
 {
     //I hate that.
-    auto it = std::find(selectedFiles.begin(), selectedFiles.end(), fileToAppand);
+    auto it = std::find(selectedFiles.begin(), selectedFiles.end(), fileToAppend);
     if (it != selectedFiles.end()) {
         selectedFiles.erase(it);
     } else {
-        selectedFiles.push_back(fileToAppand);
+        selectedFiles.push_back(fileToAppend);
     }
 }
 
