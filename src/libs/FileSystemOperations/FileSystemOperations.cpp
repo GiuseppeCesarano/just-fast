@@ -8,13 +8,24 @@ void FileSystemOperations::setSelectedFiles(const std::vector<std::filesystem::p
 
 void FileSystemOperations::appendSelectedFiles(const std::filesystem::path& fileToAppend)
 {
-    //I hate that.
-    auto it = std::find(selectedFiles.begin(), selectedFiles.end(), fileToAppend);
-    if (it != selectedFiles.end()) {
-        selectedFiles.erase(it);
-    } else {
-        selectedFiles.push_back(fileToAppend);
-    }
+    auto it = std::find(std::begin(selectedFiles), std::end(selectedFiles), fileToAppend);
+
+    /**
+     * Why are there void casts?
+     * 
+     * Ternary operator arguments have to return the same type,
+     * but .erase and .push_back methods return different things:
+     *     .erase     -> iterator
+     *     .push_back -> void
+     *
+     * Of course, you can skip the void cast at the .push_back method,
+     * but I kept it in order to make that piece of code more consistent.
+     *
+     * And now I hope there's no need for any hatred :P
+     */
+    (it != std::end(selectedFiles))
+        ? static_cast<void>(selectedFiles.erase(it))
+        : static_cast<void>(selectedFiles.push_back(fileToAppend));
 }
 
 void FileSystemOperations::clearSelectedFiles()
