@@ -10,7 +10,7 @@ cxxopts::ParseResult parseArgs(cxxopts::Options opts, const int* argc, char*** a
     try {
         cxxopts::ParseResult res = opts.parse(*argc, *argv);
         return res;
-    } catch (const cxxopts::OptionParseException& e) {
+    } catch (const cxxopts::exceptions::parsing& e) {
         std::cerr << e.what() << '\n';
         exit(1);
     }
