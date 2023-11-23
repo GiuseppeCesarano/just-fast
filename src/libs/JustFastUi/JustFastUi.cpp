@@ -31,6 +31,40 @@ void JustFastUi::updateMainView(size_t cursorPosition)
     std::vector<std::filesystem::path> currentFolderFiles;
     std::vector<std::filesystem::path> currentFolderFolders;
 
+    ftxui::MenuEntryOption optionFolder = {};
+    optionFolder.transform = [&](const ftxui::EntryState &state) -> ftxui::Element {
+
+        std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
+        ftxui::Element e = ftxui::text(std::move(label));
+        if (state.focused) {
+            // Here setup the active folder
+            currentFolderNameSelected = state.label;
+
+            e = e | ftxui::inverted;
+        }
+        if (state.active) {
+            e = e | ftxui::bold;
+        }
+        return e | ftxui::color(ftxui::Color::RGB(50, 100, 150));
+    };
+
+    ftxui::MenuEntryOption optionFile = {};
+    optionFile.transform = [&](const ftxui::EntryState &state) -> ftxui::Element {
+
+        std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
+        ftxui::Element e = ftxui::text(std::move(label));
+        if (state.focused) {
+            // Here setup the active folder
+            currentFolderNameSelected = state.label;
+
+            e = e | ftxui::inverted;
+        }
+        if (state.active) {
+            e = e | ftxui::bold;
+        }
+        return e;
+    };
+
     currentFolder->DetachAllChildren();
     currentFolderSelected = cursorPosition;
     try {
@@ -46,7 +80,12 @@ void JustFastUi::updateMainView(size_t cursorPosition)
                     }
                 }
                 else {
-                    currentFolder->Add(ftxui::MenuEntry(p.path().filename().wstring()));
+                    if(p.is_directory()) {
+                        currentFolder->Add(ftxui::MenuEntry(p.path().filename().wstring(), optionFolder));
+                    }
+                    else {
+                        currentFolder->Add(ftxui::MenuEntry(p.path().filename().wstring(), optionFile));
+                    }
                 }
             }
         }
@@ -59,26 +98,6 @@ void JustFastUi::updateMainView(size_t cursorPosition)
     if(isSortFiles) {
         std::sort(currentFolderFolders.begin(), currentFolderFolders.end());
 
-
-        //changePathAndUpdateViews(currentPath / currentFolderEntries[currentFolderSelected]);
-
-        ftxui::MenuEntryOption optionFolder = {};
-        optionFolder.transform = [&](const ftxui::EntryState &state) -> ftxui::Element {
-
-            std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
-            ftxui::Element e = ftxui::text(std::move(label));
-            if (state.focused) {
-                // Here setup the active folder
-                currentFolderNameSelected = state.label;
-
-                e = e | ftxui::inverted;
-            }
-            if (state.active) {
-                e = e | ftxui::bold;
-            }
-            return e | ftxui::color(ftxui::Color::RGB(50, 100, 150));
-        };
-
         for (const auto& folder : currentFolderFolders) {
             currentFolder->Add(ftxui::MenuEntry(folder.wstring(), optionFolder));
         }
@@ -86,7 +105,7 @@ void JustFastUi::updateMainView(size_t cursorPosition)
         std::sort(currentFolderFiles.begin(), currentFolderFiles.end());
 
         for (const auto& file : currentFolderFiles) {
-            currentFolder->Add(ftxui::MenuEntry(file.wstring()));
+            currentFolder->Add(ftxui::MenuEntry(file.wstring(), optionFile));
         }
     }
 }
