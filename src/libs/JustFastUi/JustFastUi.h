@@ -6,6 +6,7 @@
 
 struct JustFastOptions{
     bool showHiddenFiles;
+    bool sortFiles;
     std::filesystem::path path;
 };
 
@@ -23,6 +24,7 @@ private:
     ftxui::Component currentFolder = ftxui::Menu(&currentFolderEntries, &currentFolderSelected);
     float diskSpaceAvailable;
     bool isShowingHiddenFile; 
+    bool isSortFiles; 
 
     void updateParentView();
     void updateMainView(size_t = 0);

@@ -13,14 +13,13 @@ void JustFastUi::setQuitFunction(std::function<void()> q)
 JustFastUi::JustFastUi(const JustFastOptions& options)
     : statusMessage(L""), statusSelected(L"0"), currentPath { options.path }
     , isShowingHiddenFile { options.showHiddenFiles }
+    , isSortFiles { options.sortFiles }
 {
     int availableSpace = std::filesystem::space(currentPath).available / 1e9;
     int capacity = std::filesystem::space(currentPath).capacity / 1e9;
     diskSpaceAvailable = float(availableSpace) / float(capacity);
     spaceInfo = L"Free Space:" + std::to_wstring(availableSpace) + L" GiB " + L"(Total:" + std::to_wstring(capacity) + L"GiB)";
 
-    
-    
     currentPathCached = currentPath.wstring();
     Add(currentFolder);
 
@@ -29,18 +28,46 @@ JustFastUi::JustFastUi(const JustFastOptions& options)
 
 void JustFastUi::updateMainView(size_t cursorPosition)
 {
+    std::vector<std::wstring> currentFolderFiles;
+    std::vector<std::wstring> currentFolderFolders;
+
     currentFolderEntries.clear();
     currentFolderSelected = cursorPosition;
     try {
         for (const auto& p : std::filesystem::directory_iterator(currentPath)) {
             if (isShowingHiddenFile || p.path().filename().string()[0] != '.') {
-                currentFolderEntries.emplace_back(p.path().filename().wstring());
+
+                if(isSortFiles) {
+                    if(p.is_directory()) {
+                        currentFolderFolders.emplace_back(p.path().filename().wstring());
+                    }
+                    else {
+                        currentFolderFiles.emplace_back(p.path().filename().wstring());
+                    }
+                }
+                else {
+                    currentFolderEntries.emplace_back(p.path().filename().wstring());
+                }
             }
         }
     } catch (std::filesystem::filesystem_error& error) {
         std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
         statusMessage = converter.from_bytes(error.what());
         changePathAndUpdateViews(currentPath.parent_path());
+    }
+
+    if(isSortFiles) {
+        std::sort(currentFolderFolders.begin(), currentFolderFolders.end());
+
+        for (const auto& folder : currentFolderFolders) {
+            currentFolderEntries.emplace_back(folder);
+        }
+
+        std::sort(currentFolderFiles.begin(), currentFolderFiles.end());
+
+        for (const auto& file : currentFolderFiles) {
+            currentFolderEntries.emplace_back(file);
+        }
     }
 }
 
