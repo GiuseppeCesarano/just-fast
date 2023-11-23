@@ -72,6 +72,19 @@ int main(int argc, char* argv[]) noexcept
     options.showHiddenFiles = cliResult["all"].as<bool>();
     options.sortFiles = true;
 
+    options.transformFile = [](const ftxui::EntryState &state) -> ftxui::Element {
+
+        std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
+        ftxui::Element e = ftxui::text(std::move(label));
+        if (state.focused) {
+            e = e | ftxui::inverted;
+        }
+        if (state.active) {
+            e = e | ftxui::bold;
+        }
+        return e | ftxui::color(ftxui::Color::RGB(90, 70, 6));
+    };
+
     startJustFast(options);
 
     return 0;

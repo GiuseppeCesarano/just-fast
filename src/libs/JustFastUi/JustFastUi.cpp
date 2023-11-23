@@ -5,6 +5,33 @@
 #include <string>
 #include <utility>
 
+ftxui::Element defaultFolderTransform(const ftxui::EntryState &state) {
+
+    std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
+    ftxui::Element e = ftxui::text(std::move(label));
+    if (state.focused) {
+        e = e | ftxui::inverted;
+    }
+    if (state.active) {
+        e = e | ftxui::bold;
+    }
+    return e | ftxui::color(ftxui::Color::RGB(50, 100, 150));
+};
+
+ftxui::Element defaultFileTransform(const ftxui::EntryState &state) {
+
+    std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
+    ftxui::Element e = ftxui::text(std::move(label));
+    if (state.focused) {
+        e = e | ftxui::inverted;
+    }
+    if (state.active) {
+        e = e | ftxui::bold;
+    }
+    return e;
+};
+
+
 void JustFastUi::setQuitFunction(std::function<void()> q)
 {
     quit = std::move(q);
@@ -14,6 +41,8 @@ JustFastUi::JustFastUi(const JustFastOptions& options)
     : statusMessage(L""), statusSelected(L"0"), currentPath { options.path }
     , isShowingHiddenFile { options.showHiddenFiles }
     , isSortFiles { options.sortFiles }
+    , transformElementFolder { options.transformFolder }
+    , transformElementFile { options.transformFile }
 {
     int availableSpace = std::filesystem::space(currentPath).available / 1e9;
     int capacity = std::filesystem::space(currentPath).capacity / 1e9;
@@ -34,35 +63,29 @@ void JustFastUi::updateMainView(size_t cursorPosition)
     ftxui::MenuEntryOption optionFolder = {};
     optionFolder.transform = [&](const ftxui::EntryState &state) -> ftxui::Element {
 
-        std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
-        ftxui::Element e = ftxui::text(std::move(label));
         if (state.focused) {
-            // Here setup the active folder
             currentFolderNameSelected = state.label;
+        }
 
-            e = e | ftxui::inverted;
-        }
-        if (state.active) {
-            e = e | ftxui::bold;
-        }
-        return e | ftxui::color(ftxui::Color::RGB(50, 100, 150));
+        const ftxui::Element element =
+          (transformElementFolder ? transformElementFolder
+                                    : defaultFolderTransform)  //
+          (state);
+        return element;
     };
 
     ftxui::MenuEntryOption optionFile = {};
     optionFile.transform = [&](const ftxui::EntryState &state) -> ftxui::Element {
 
-        std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
-        ftxui::Element e = ftxui::text(std::move(label));
         if (state.focused) {
-            // Here setup the active folder
             currentFolderNameSelected = state.label;
+        }
 
-            e = e | ftxui::inverted;
-        }
-        if (state.active) {
-            e = e | ftxui::bold;
-        }
-        return e;
+        const ftxui::Element element =
+          (transformElementFile ? transformElementFile
+                                : defaultFileTransform)  //
+          (state);
+        return element;
     };
 
     currentFolder->DetachAllChildren();
