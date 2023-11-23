@@ -60,13 +60,13 @@ void JustFastUi::updateMainView(size_t cursorPosition)
         std::sort(currentFolderFolders.begin(), currentFolderFolders.end());
 
         for (const auto& folder : currentFolderFolders) {
-            currentFolderEntries.emplace_back(folder);
+            currentFolderEntries.emplace_back(folder.wstring());
         }
 
         std::sort(currentFolderFiles.begin(), currentFolderFiles.end());
 
         for (const auto& file : currentFolderFiles) {
-            currentFolderEntries.emplace_back(file);
+            currentFolderEntries.emplace_back(file.wstring());
         }
     }
 }
