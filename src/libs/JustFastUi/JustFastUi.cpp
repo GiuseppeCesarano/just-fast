@@ -28,8 +28,8 @@ JustFastUi::JustFastUi(const JustFastOptions& options)
 
 void JustFastUi::updateMainView(size_t cursorPosition)
 {
-    std::vector<std::wstring> currentFolderFiles;
-    std::vector<std::wstring> currentFolderFolders;
+    std::vector<std::filesystem::path> currentFolderFiles;
+    std::vector<std::filesystem::path> currentFolderFolders;
 
     currentFolderEntries.clear();
     currentFolderSelected = cursorPosition;
@@ -39,10 +39,10 @@ void JustFastUi::updateMainView(size_t cursorPosition)
 
                 if(isSortFiles) {
                     if(p.is_directory()) {
-                        currentFolderFolders.emplace_back(p.path().filename().wstring());
+                        currentFolderFolders.emplace_back(p.path().filename());
                     }
                     else {
-                        currentFolderFiles.emplace_back(p.path().filename().wstring());
+                        currentFolderFiles.emplace_back(p.path().filename());
                     }
                 }
                 else {
@@ -60,26 +60,58 @@ void JustFastUi::updateMainView(size_t cursorPosition)
         std::sort(currentFolderFolders.begin(), currentFolderFolders.end());
 
         for (const auto& folder : currentFolderFolders) {
-            currentFolderEntries.emplace_back(folder);
+            currentFolderEntries.emplace_back(folder.wstring());
         }
 
         std::sort(currentFolderFiles.begin(), currentFolderFiles.end());
 
         for (const auto& file : currentFolderFiles) {
-            currentFolderEntries.emplace_back(file);
+            currentFolderEntries.emplace_back(file.wstring());
         }
     }
 }
 
 void JustFastUi::updateParentView()
 {
+    std::vector<std::filesystem::path> parentFolderFiles;
+    std::vector<std::filesystem::path> parrentFolderFolders;
+
     parentFolderEntries.clear();
     for (const auto& p : std::filesystem::directory_iterator(currentPath.parent_path())) {
         if (isShowingHiddenFile || p.path().filename().string()[0] != '.') {
-            parentFolderEntries.emplace_back(p.path().filename().wstring());
+
+            if(isSortFiles) {
+                if(p.is_directory()) {
+                    parrentFolderFolders.emplace_back(p.path().filename());
+                }
+                else {
+                    parentFolderFiles.emplace_back(p.path().filename());
+                }
+            }
+            else {
+                parentFolderEntries.emplace_back(p.path().filename().wstring());
+                if (p.path().filename() == currentPath.filename()) {
+                    parentFolderSelected = parentFolderEntries.size() - 1;
+                }
+            }
+
         }
-        if (p.path().filename() == currentPath.filename()) {
-            parentFolderSelected = parentFolderEntries.size() - 1;
+    }
+
+    if(isSortFiles) {
+        std::sort(parrentFolderFolders.begin(), parrentFolderFolders.end());
+
+        for (const auto& folder : parrentFolderFolders) {
+            parentFolderEntries.emplace_back(folder.wstring());
+            if (folder == currentPath.filename()) {
+                parentFolderSelected = parentFolderEntries.size() - 1;
+            }
+        }
+
+        std::sort(parentFolderFiles.begin(), parentFolderFiles.end());
+
+        for (const auto& file : parentFolderFiles) {
+            parentFolderEntries.emplace_back(file.wstring());
         }
     }
 }
