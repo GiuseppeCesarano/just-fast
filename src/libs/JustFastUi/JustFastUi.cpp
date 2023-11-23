@@ -31,7 +31,7 @@ void JustFastUi::updateMainView(size_t cursorPosition)
     std::vector<std::filesystem::path> currentFolderFiles;
     std::vector<std::filesystem::path> currentFolderFolders;
 
-    currentFolderEntries.clear();
+    currentFolder->DetachAllChildren();
     currentFolderSelected = cursorPosition;
     try {
         for (const auto& p : std::filesystem::directory_iterator(currentPath)) {
@@ -46,7 +46,7 @@ void JustFastUi::updateMainView(size_t cursorPosition)
                     }
                 }
                 else {
-                    currentFolderEntries.emplace_back(p.path().filename().wstring());
+                    currentFolder->Add(ftxui::MenuEntry(p.path().filename().wstring()));
                 }
             }
         }
@@ -59,14 +59,34 @@ void JustFastUi::updateMainView(size_t cursorPosition)
     if(isSortFiles) {
         std::sort(currentFolderFolders.begin(), currentFolderFolders.end());
 
+
+        //changePathAndUpdateViews(currentPath / currentFolderEntries[currentFolderSelected]);
+
+        ftxui::MenuEntryOption optionFolder = {};
+        optionFolder.transform = [&](const ftxui::EntryState &state) -> ftxui::Element {
+
+            std::string label = (state.focused ? "> " : "  ") + state.label;  // NOLINT
+            ftxui::Element e = ftxui::text(std::move(label));
+            if (state.focused) {
+                // Here setup the active folder
+                currentFolderNameSelected = state.label;
+
+                e = e | ftxui::inverted;
+            }
+            if (state.active) {
+                e = e | ftxui::bold;
+            }
+            return e | ftxui::color(ftxui::Color::RGB(50, 100, 150));
+        };
+
         for (const auto& folder : currentFolderFolders) {
-            currentFolderEntries.emplace_back(folder.wstring());
+            currentFolder->Add(ftxui::MenuEntry(folder.wstring(), optionFolder));
         }
 
         std::sort(currentFolderFiles.begin(), currentFolderFiles.end());
 
         for (const auto& file : currentFolderFiles) {
-            currentFolderEntries.emplace_back(file.wstring());
+            currentFolder->Add(ftxui::MenuEntry(file.wstring()));
         }
     }
 }
@@ -236,11 +256,11 @@ ftxui::Element JustFastUi::Render()
 bool JustFastUi::OnEvent(ftxui::Event event)
 {
     if (event == ftxui::Event::Character('l') || event == ftxui::Event::ArrowRight) {
-        if (currentFolderEntries.empty()) {
+        if (currentFolder->ChildCount() == 0) {
             return true;
         }
 
-        changePathAndUpdateViews(currentPath / currentFolderEntries[currentFolderSelected]);
+        changePathAndUpdateViews(currentPath / currentFolderNameSelected);
         return true;
     }
 
@@ -250,7 +270,7 @@ bool JustFastUi::OnEvent(ftxui::Event event)
     }
 
     if (event == ftxui::Event::Character('f')) {
-        selectFile(currentPath / currentFolderEntries[currentFolderSelected]);
+        selectFile(currentPath / currentFolderNameSelected);
         return true;
     }
 

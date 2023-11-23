@@ -20,8 +20,9 @@ private:
     std::vector<std::wstring> currentFolderEntries;
     int parentFolderSelected = 0;
     int currentFolderSelected = 0;
+    std::string currentFolderNameSelected = "";
     ftxui::Component parentFolder = ftxui::Menu(&parentFolderEntries, &parentFolderSelected);
-    ftxui::Component currentFolder = ftxui::Menu(&currentFolderEntries, &currentFolderSelected);
+    ftxui::Component currentFolder = ftxui::Container::Vertical({}, &currentFolderSelected);
     float diskSpaceAvailable;
     bool isShowingHiddenFile; 
     bool isSortFiles; 
