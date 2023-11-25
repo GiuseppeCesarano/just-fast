@@ -3,7 +3,6 @@
 #include "FileSystemOperations/FileSystemOperations.h"
 #include <filesystem>
 #include <ftxui/component/component.hpp>
-#include <ftxui/component/menu.hpp>
 
 struct JustFastOptions{
     bool showHiddenFiles;
