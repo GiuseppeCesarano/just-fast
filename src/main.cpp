@@ -70,6 +70,7 @@ int main(int argc, char* argv[]) noexcept
         }
     }
     options.showHiddenFiles = cliResult["all"].as<bool>();
+    options.sortFiles = true;
 
     startJustFast(options);
 
