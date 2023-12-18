@@ -5,9 +5,11 @@
 #include <ftxui/component/component.hpp>
 
 struct JustFastOptions{
-    bool showHiddenFiles;
-    bool sortFiles;
     std::filesystem::path path;
+    bool showHiddenFiles;
+    bool sortFiles = true;
+    std::function<ftxui::Element(const ftxui::EntryState& state)> transformFolder = nullptr;
+    std::function<ftxui::Element(const ftxui::EntryState& state)> transformFile = nullptr;
 };
 
 class JustFastUi : public ftxui::ComponentBase {
@@ -20,11 +22,14 @@ private:
     std::vector<std::wstring> currentFolderEntries;
     int parentFolderSelected = 0;
     int currentFolderSelected = 0;
+    std::string currentFolderNameSelected = "";
     ftxui::Component parentFolder = ftxui::Menu(&parentFolderEntries, &parentFolderSelected);
-    ftxui::Component currentFolder = ftxui::Menu(&currentFolderEntries, &currentFolderSelected);
+    ftxui::Component currentFolder = ftxui::Container::Vertical({}, &currentFolderSelected);
     float diskSpaceAvailable;
     bool isShowingHiddenFile; 
     bool isSortFiles; 
+    std::function<ftxui::Element(const ftxui::EntryState& state)> transformElementFolder = nullptr;
+    std::function<ftxui::Element(const ftxui::EntryState& state)> transformElementFile = nullptr;
 
     void updateParentView();
     void updateMainView(size_t = 0);
